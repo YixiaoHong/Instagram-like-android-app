@@ -72,18 +72,13 @@ public class IndexActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-//        navigationView.setNavigationItemSelectedListener(
-//                new NavigationView.OnNavigationItemSelectedListener() {
-//                    @Override
-//                    public boolean onNavigationItemSelected (MenuItem menuItem) {
-//                        int id = menuItem.getItemId();
-//                        if (id == R.id.nav_logout){
-//                            logOut();
-//                            return true;
-//                        }
-//                        return true;
-//                    }
-//                });
+        navigationView.getMenu().findItem(R.id.nav_logout).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                logOut();
+                return true;
+            }
+        });
     }
 
     @Override

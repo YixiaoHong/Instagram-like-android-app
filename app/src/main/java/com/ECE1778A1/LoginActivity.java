@@ -35,22 +35,17 @@ public class LoginActivity extends AppCompatActivity {
         password = findViewById(R.id.editText_login_password);
         bthLogin = findViewById(R.id.btn_login_login);
         btnSignUp = findViewById(R.id.btn_signup_signup);
+        FirebaseUser loginFirebaseUser = myFirebaseAuth.getCurrentUser();
 
-        myAuthStateListener = new FirebaseAuth.AuthStateListener(){
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
-                FirebaseUser loginFirebaseUser = myFirebaseAuth.getCurrentUser();
-                if( loginFirebaseUser != null ){
-                    //user exist
-                    Toast.makeText(LoginActivity.this,"You are successfully logged in", Toast.LENGTH_SHORT).show();
-                    Intent indexActivity_int = new Intent(LoginActivity.this, IndexActivity.class);
-                    startActivity(indexActivity_int);
-                }
-                else{
-                    Toast.makeText(LoginActivity.this,"Login failed",Toast.LENGTH_SHORT).show();
-                }
-            }
-        };
+        if( loginFirebaseUser != null ){
+            //user exist
+            Toast.makeText(LoginActivity.this,"You are successfully logged in", Toast.LENGTH_SHORT).show();
+            Intent indexActivity_int = new Intent(LoginActivity.this, IndexActivity.class);
+            startActivity(indexActivity_int);
+        }
+        else{
+            Toast.makeText(LoginActivity.this,"Login failed",Toast.LENGTH_SHORT).show();
+        }
 
         bthLogin.setOnClickListener(new View.OnClickListener() {
             @Override
