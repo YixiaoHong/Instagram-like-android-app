@@ -12,16 +12,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.sql.SQLOutput;
 
 public class LoginActivity extends AppCompatActivity {
     //user input
-    public EditText email, password;
-    public Button btnSignUp,bthLogin;
-    public FirebaseAuth myFirebaseAuth;
+    private EditText userInputEmail, userInputPassword;
+    private Button buttonSignUp, buttonLogin;
+    private FirebaseAuth myFirebaseAuth;
     private FirebaseAuth.AuthStateListener myAuthStateListener;
 
     @Override
@@ -29,12 +26,14 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        //google auth
+        //get google firebase Auth
         myFirebaseAuth = FirebaseAuth.getInstance();
-        email = findViewById(R.id.editText_login_email);
-        password = findViewById(R.id.editText_login_password);
-        bthLogin = findViewById(R.id.btn_login_login);
-        btnSignUp = findViewById(R.id.btn_signup_signup);
+        //get user inputs
+        userInputEmail = findViewById(R.id.editText_login_email);
+        userInputPassword = findViewById(R.id.editText_login_password);
+        //get buttons
+        buttonLogin = findViewById(R.id.btn_login_login);
+        buttonSignUp = findViewById(R.id.btn_signup_signup);
         FirebaseUser loginFirebaseUser = myFirebaseAuth.getCurrentUser();
 
         if( loginFirebaseUser != null ){
@@ -47,12 +46,12 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(LoginActivity.this,"Login failed",Toast.LENGTH_SHORT).show();
         }
 
-        bthLogin.setOnClickListener(new View.OnClickListener() {
+        buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //read account and password
-                String account = email.getText().toString();
-                String pwd = password.getText().toString();
+                //read account and userInputPassword
+                String account = userInputEmail.getText().toString();
+                String pwd = userInputPassword.getText().toString();
                 if (!account.isEmpty() && !pwd.isEmpty()){
                     myFirebaseAuth.signInWithEmailAndPassword(account, pwd).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
@@ -68,15 +67,15 @@ public class LoginActivity extends AppCompatActivity {
                     });
                 }
                 else if(account.isEmpty()){
-                    email.setError("Please enter user email");
-                    email.requestFocus();
+                    userInputEmail.setError("Please enter user userInputEmail");
+                    userInputEmail.requestFocus();
                 }
                 else  if(pwd.isEmpty()){
-                    password.setError("Please enter password");
-                    password.requestFocus();
+                    userInputPassword.setError("Please enter userInputPassword");
+                    userInputPassword.requestFocus();
                 }
                 else{
-                    Toast.makeText(LoginActivity.this,"Please fill email and password",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this,"Please fill userInputEmail and userInputPassword",Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -84,7 +83,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
         //redirect to signup page
-        btnSignUp.setOnClickListener(new View.OnClickListener() {
+        buttonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent signup_int = new Intent(LoginActivity.this,SignupActivity.class);

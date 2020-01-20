@@ -26,8 +26,8 @@ public class IndexActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private String currentuser;
-    Button btn_logout;
-    FirebaseAuth mFirebaseAuth;
+    private Button btn_logout;
+    private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     @Override
