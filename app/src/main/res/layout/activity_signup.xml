@@ -15,6 +15,11 @@
         android:text="User Sign Up"
         android:textSize="10pt"
         />
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android: android:src="@drawable/ic_lock"
+        />
     <EditText
         android:id="@+id/editText_signup_email"
         android:layout_width="match_parent"
