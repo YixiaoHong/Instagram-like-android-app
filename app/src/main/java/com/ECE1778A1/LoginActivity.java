@@ -1,18 +1,32 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2020 YixiaoHong
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package com.ECE1778A1;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity {
     //user input
@@ -41,8 +55,7 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(LoginActivity.this,"You are successfully logged in", Toast.LENGTH_SHORT).show();
             Intent indexActivity_int = new Intent(LoginActivity.this, IndexActivity.class);
             startActivity(indexActivity_int);
-        }
-        else{
+        } else{
             Toast.makeText(LoginActivity.this,"Login failed",Toast.LENGTH_SHORT).show();
         }
 
@@ -59,22 +72,18 @@ public class LoginActivity extends AppCompatActivity {
                             if (task.isSuccessful()){
                                 Intent Index_int = new Intent(LoginActivity.this,IndexActivity.class);
                                 startActivity(Index_int);
-                            }
-                            else{
+                            } else{
                                 Toast.makeText(LoginActivity.this,"Login failed, please login again",Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
-                }
-                else if(account.isEmpty()){
+                } else if(account.isEmpty()){
                     userInputEmail.setError("Please enter user userInputEmail");
                     userInputEmail.requestFocus();
-                }
-                else  if(pwd.isEmpty()){
+                } else  if(pwd.isEmpty()){
                     userInputPassword.setError("Please enter userInputPassword");
                     userInputPassword.requestFocus();
-                }
-                else{
+                } else{
                     Toast.makeText(LoginActivity.this,"Please fill userInputEmail and userInputPassword",Toast.LENGTH_SHORT).show();
                 }
 

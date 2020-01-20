@@ -1,40 +1,43 @@
-package com.ECE1778A1;
+/*
+ * MIT License
+ *
+ * Copyright (c) 2020 YixiaoHong
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 
-import com.ECE1778A1.model.UserInfo;
-import com.google.android.gms.tasks.OnCompleteListener;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+package com.ECE1778A1;
 
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.ECE1778A1.model.UserInfo;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.auth.User;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -76,36 +79,29 @@ public class SignupActivity extends AppCompatActivity {
                 if(str_email.isEmpty()){
                     email.setError("Please fill in the email");
                     email.requestFocus();
-                }
-                else  if(str_pwd.isEmpty()){
+                } else  if(str_pwd.isEmpty()){
                     password.setError("Please fill in your password");
                     password.requestFocus();
-                }
-                else  if(str_pwd2.isEmpty()){
+                } else  if(str_pwd2.isEmpty()){
                     password2.setError("Please re-enter your password");
                     password2.requestFocus();
-                }
-                else  if(str_userName.isEmpty()){
+                } else  if(str_userName.isEmpty()){
                     userInputName.setError("Please enter your user name");
                     userInputName.requestFocus();
-                }
-                else  if(!str_email.isEmpty() && !str_pwd.isEmpty() && !str_pwd2.isEmpty() && !str_userName.isEmpty()){
+                } else  if(!str_email.isEmpty() && !str_pwd.isEmpty() && !str_pwd2.isEmpty() && !str_userName.isEmpty()){
                     //check email and password
                     if (!Patterns.EMAIL_ADDRESS.matcher(str_email).matches()){
                         email.setError("The email address is in correct");
                         email.requestFocus();
-                    }
-                    else if (str_pwd.length()<6){//check if password length correct
+                    } else if (str_pwd.length()<6){//check if password length correct
                         password.setError("Password should be no less than 6 characters");
                         password.requestFocus();
-                    }
-                    else if (!str_pwd.equals(str_pwd2)){
+                    } else if (!str_pwd.equals(str_pwd2)){
                         Toast.makeText(SignupActivity.this,"The passwords do not match",Toast.LENGTH_SHORT).show();
                         password.setError("The passwords do not match");
                         password2.setError("The passwords do not match");
                         password.requestFocus();
-                    }
-                    else{
+                    } else{
                         mFirebaseAuth.createUserWithEmailAndPassword(str_email, str_pwd).addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -113,31 +109,16 @@ public class SignupActivity extends AppCompatActivity {
                                     if (task.getException() instanceof FirebaseAuthUserCollisionException){
                                         email.setError("The email is already in use");
                                         email.requestFocus();
-                                    }
-                                    else{
+                                    } else{
                                         Toast.makeText(SignupActivity.this,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
                                     }
-                                }
-                                else {
+                                } else {
                                     // create a map object
                                     UserInfo dataObj = new UserInfo(str_email,str_userName,str_userBio);
 
                                     //input into data base
                                     db = FirebaseFirestore.getInstance();
-                                    db.collection("users")
-                                            .add(dataObj)
-                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                @Override
-                                                public void onSuccess(DocumentReference documentReference) {
-                                                    Log.d("Insert DB", "DocumentSnapshot added with ID: " + documentReference.getId());
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.w("Insert DB", "Error adding document", e);
-                                                }
-                                            });
+                                    db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).set(dataObj);
 
                                     Toast.makeText(SignupActivity.this,"Signup Succeed, You are logged in",Toast.LENGTH_LONG).show();
                                     //todo:add auto navito main page
@@ -146,8 +127,7 @@ public class SignupActivity extends AppCompatActivity {
                             }
                         });
                     }
-                }
-                else{
+                } else{
                     Toast.makeText(SignupActivity.this,"An unknown error occurred",Toast.LENGTH_SHORT).show();
                 }
             }
@@ -201,8 +181,7 @@ public class SignupActivity extends AppCompatActivity {
         if (requestCode==1000){
             if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
                 openCamera();
-            }
-            else{
+            } else{
                 Toast.makeText(SignupActivity.this,"Permission Denied",Toast.LENGTH_LONG).show();
             }
         }
