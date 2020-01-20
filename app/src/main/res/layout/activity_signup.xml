@@ -13,12 +13,21 @@
         android:layout_marginLeft="60dp"
         android:layout_marginTop="20dp"
         android:text="User Sign Up"
-        android:textSize="10pt"
+        android:textSize="13pt"
         />
     <ImageView
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android: android:src="@drawable/ic_lock"
+        android:src="@drawable/ic_photo"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:text="Add a profile photo"
         />
     <EditText
         android:id="@+id/editText_signup_email"
