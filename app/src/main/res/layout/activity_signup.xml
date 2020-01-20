@@ -16,6 +16,7 @@
         android:textSize="13pt"
         />
     <ImageView
+        android:id="@+id/camera_icon"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:src="@drawable/ic_photo"
@@ -27,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="5dp"
-        android:text="Add a profile photo"
+        android:text="Click icon to add a profile photo"
         />
     <EditText
         android:id="@+id/editText_signup_email"

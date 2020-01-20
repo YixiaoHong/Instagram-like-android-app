@@ -3,14 +3,24 @@ package com.ECE1778A1;
 import com.ECE1778A1.model.UserInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,6 +43,8 @@ public class SignupActivity extends AppCompatActivity {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseFirestore db;
     private UserInfo userInfo;
+    private ImageView cameraIcon;
+    private Uri imageUri;
 
 
     @Override
@@ -47,6 +59,8 @@ public class SignupActivity extends AppCompatActivity {
         userInputBio = findViewById(R.id.editText_signup_user_bio);
         bthLogin = findViewById(R.id.btn_signup_login);
         btnSignUp = findViewById(R.id.btn_signup_signup);
+
+        cameraIcon = findViewById(R.id.camera_icon);
 
         mFirebaseAuth = FirebaseAuth.getInstance();
 
@@ -146,5 +160,60 @@ public class SignupActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        cameraIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //if the system os >= current version, request runtime permission
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+
+                    //permission not eabled
+                    if(checkSelfPermission(Manifest.permission.CAMERA)== PackageManager.PERMISSION_DENIED
+                            || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                        String[] permission = {Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                        //popup to use permission
+                        requestPermissions(permission,1000);
+                    }
+                    //permission enabled
+                    else{
+                        openCamera();
+
+                    }
+
+                }
+            }
+        });
+    }
+
+    private void openCamera(){
+        ContentValues val = new ContentValues();
+        val.put(MediaStore.Images.Media.TITLE,"Picture");
+        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,val);
+        //open camera intent
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
+        startActivityForResult(cameraIntent,1001);
+    }
+
+    //to handle permission result
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode==1000){
+            if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                openCamera();
+            }
+            else{
+                Toast.makeText(SignupActivity.this,"Permission Denied",Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        //after image captured from camera
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            cameraIcon.setImageURI(imageUri);
+        }
     }
 }
