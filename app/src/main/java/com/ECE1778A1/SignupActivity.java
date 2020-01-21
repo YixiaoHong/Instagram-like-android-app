@@ -25,7 +25,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +38,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignupActivity extends AppCompatActivity {
@@ -46,22 +46,18 @@ public class SignupActivity extends AppCompatActivity {
     private EditText email, password,password2,userInputBio, userInputName;
     private Button btnSignUp;
     private TextView textBthLogin;
-    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth myFirebaseAuth;
     private FirebaseFirestore db;
     private UserInfo userInfo;
     private ImageView cameraIcon;
     private Uri imageUri;
     private FirebaseAuth.AuthStateListener myAuthStateListener;
-    private ProgressBar signProgressbar;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
-
-        signProgressbar = findViewById(R.id.signup_progressBar);
-        signProgressbar.setVisibility(View.INVISIBLE);
 
         email = findViewById(R.id.editText_signup_email);
         password = findViewById(R.id.editText_signup_password);
@@ -73,12 +69,11 @@ public class SignupActivity extends AppCompatActivity {
 
         cameraIcon = findViewById(R.id.camera_icon);
 
-        mFirebaseAuth = FirebaseAuth.getInstance();
+        myFirebaseAuth = FirebaseAuth.getInstance();
 
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signProgressbar.setVisibility(View.VISIBLE);
                 final String str_email = email.getText().toString().trim();
                 final String str_pwd = password.getText().toString().trim();
                 String str_pwd2 = password2.getText().toString().trim();
@@ -111,7 +106,7 @@ public class SignupActivity extends AppCompatActivity {
                         password2.setError("The passwords do not match");
                         password.requestFocus();
                     } else{
-                        mFirebaseAuth.createUserWithEmailAndPassword(str_email, str_pwd).addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
+                        myFirebaseAuth.createUserWithEmailAndPassword(str_email, str_pwd).addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if(!task.isSuccessful()){
@@ -128,24 +123,17 @@ public class SignupActivity extends AppCompatActivity {
                                     //input into data base
                                     db = FirebaseFirestore.getInstance();
                                     db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).set(dataObj);
-
-                                    Toast.makeText(SignupActivity.this,"Signup Succeed, You are logged in",Toast.LENGTH_LONG).show();
+                                    FirebaseUser loginFirebaseUser = myFirebaseAuth.getCurrentUser();
 
                                     //navigate to main page
-                                    mFirebaseAuth.signInWithEmailAndPassword(str_email, str_pwd).addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<AuthResult> task) {
-                                            if (task.isSuccessful()){
-                                                Intent Index_int = new Intent(SignupActivity.this,IndexActivity.class);
-                                                startActivity(Index_int);
-                                            } else{
-                                                Toast.makeText(SignupActivity.this,"Automatic login failed, please login again",Toast.LENGTH_SHORT).show();
-                                                Intent login_int = new Intent(SignupActivity.this,LoginActivity.class);
-                                                startActivity(login_int);
-                                            }
-                                        }
-                                    });
-                                    finish();
+                                    if( loginFirebaseUser != null ){
+                                        //user exist
+                                        Toast.makeText(SignupActivity.this,"Signup Succeed, You are successfully logged in", Toast.LENGTH_SHORT).show();
+                                        Intent indexActivity_int = new Intent(SignupActivity.this, IndexActivity.class);
+                                        startActivity(indexActivity_int);
+                                    } else{
+                                        Toast.makeText(SignupActivity.this,"Need to re-login",Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             }
                         });
@@ -153,7 +141,6 @@ public class SignupActivity extends AppCompatActivity {
                 } else{
                     Toast.makeText(SignupActivity.this,"An unknown error occurred",Toast.LENGTH_SHORT).show();
                 }
-                signProgressbar.setVisibility(View.INVISIBLE);
             }
         });
 
