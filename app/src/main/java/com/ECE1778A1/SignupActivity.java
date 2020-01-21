@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,12 +51,17 @@ public class SignupActivity extends AppCompatActivity {
     private UserInfo userInfo;
     private ImageView cameraIcon;
     private Uri imageUri;
+    private FirebaseAuth.AuthStateListener myAuthStateListener;
+    private ProgressBar signProgressbar;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+
+        signProgressbar = findViewById(R.id.signup_progressBar);
+        signProgressbar.setVisibility(View.INVISIBLE);
 
         email = findViewById(R.id.editText_signup_email);
         password = findViewById(R.id.editText_signup_password);
@@ -72,11 +78,12 @@ public class SignupActivity extends AppCompatActivity {
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String str_email = email.getText().toString();
-                String str_pwd = password.getText().toString();
-                String str_pwd2 = password2.getText().toString();
-                final String str_userName = userInputName.getText().toString();
-                final String str_userBio = userInputBio.getText().toString();
+                signProgressbar.setVisibility(View.VISIBLE);
+                final String str_email = email.getText().toString().trim();
+                final String str_pwd = password.getText().toString().trim();
+                String str_pwd2 = password2.getText().toString().trim();
+                final String str_userName = userInputName.getText().toString().trim();
+                final String str_userBio = userInputBio.getText().toString().trim();
 
                 if(str_email.isEmpty()){
                     email.setError("Please fill in the email");
@@ -123,7 +130,21 @@ public class SignupActivity extends AppCompatActivity {
                                     db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).set(dataObj);
 
                                     Toast.makeText(SignupActivity.this,"Signup Succeed, You are logged in",Toast.LENGTH_LONG).show();
-                                    //todo:add auto navito main page
+
+                                    //navigate to main page
+                                    mFirebaseAuth.signInWithEmailAndPassword(str_email, str_pwd).addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<AuthResult> task) {
+                                            if (task.isSuccessful()){
+                                                Intent Index_int = new Intent(SignupActivity.this,IndexActivity.class);
+                                                startActivity(Index_int);
+                                            } else{
+                                                Toast.makeText(SignupActivity.this,"Automatic login failed, please login again",Toast.LENGTH_SHORT).show();
+                                                Intent login_int = new Intent(SignupActivity.this,LoginActivity.class);
+                                                startActivity(login_int);
+                                            }
+                                        }
+                                    });
                                     finish();
                                 }
                             }
@@ -132,6 +153,7 @@ public class SignupActivity extends AppCompatActivity {
                 } else{
                     Toast.makeText(SignupActivity.this,"An unknown error occurred",Toast.LENGTH_SHORT).show();
                 }
+                signProgressbar.setVisibility(View.INVISIBLE);
             }
         });
 
