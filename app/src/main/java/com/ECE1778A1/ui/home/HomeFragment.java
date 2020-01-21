@@ -56,9 +56,9 @@ public class HomeFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 UserInfo userInfo = task.getResult().toObject(UserInfo.class);
-                userEmail.setText(userInfo.getUserEmail());
+                userEmail.setText("Email: "+userInfo.getUserEmail());
                 userName.setText(userInfo.getUserName());
-                userBio.setText(userInfo.getUserBio());
+                userBio.setText("Bio: "+ userInfo.getUserBio());
             }
         });
 

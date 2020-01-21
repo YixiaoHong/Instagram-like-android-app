@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,7 +43,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class SignupActivity extends AppCompatActivity {
 
     private EditText email, password,password2,userInputBio, userInputName;
-    private Button btnSignUp,bthLogin;
+    private Button btnSignUp;
+    private TextView textBthLogin;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseFirestore db;
     private UserInfo userInfo;
@@ -60,7 +62,7 @@ public class SignupActivity extends AppCompatActivity {
         password2 = findViewById(R.id.editText_signup_password2);
         userInputName = findViewById(R.id.editText_signup_username);
         userInputBio = findViewById(R.id.editText_signup_user_bio);
-        bthLogin = findViewById(R.id.btn_signup_login);
+        textBthLogin = findViewById(R.id.textView_sign_login_btn);
         btnSignUp = findViewById(R.id.btn_signup_signup);
 
         cameraIcon = findViewById(R.id.camera_icon);
@@ -134,7 +136,7 @@ public class SignupActivity extends AppCompatActivity {
         });
 
         //redirect to login page
-        bthLogin.setOnClickListener(new View.OnClickListener() {
+        textBthLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
