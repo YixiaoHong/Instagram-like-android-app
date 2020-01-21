@@ -45,7 +45,6 @@
         android:layout_width="match_parent"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="60dp"
-        android:layout_marginTop="5dp"
         android:layout_height="50dp"
         android:ems="10"
         android:inputType="textEmailAddress"
@@ -57,7 +56,6 @@
         android:layout_width="match_parent"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="60dp"
-        android:layout_marginTop="10dp"
         android:layout_height="50dp"
         android:ems="10"
         android:inputType="textPassword"
@@ -70,7 +68,6 @@
         android:layout_width="match_parent"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="60dp"
-        android:layout_marginTop="10dp"
         android:layout_height="50dp"
         android:ems="10"
         android:inputType="textPassword"
@@ -83,7 +80,6 @@
         android:layout_width="match_parent"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="60dp"
-        android:layout_marginTop="10dp"
         android:layout_height="50dp"
         android:ems="10"
         android:inputType="text"
@@ -96,7 +92,6 @@
         android:layout_width="match_parent"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="60dp"
-        android:layout_marginTop="10dp"
         android:layout_height="50dp"
         android:ems="10"
         android:inputType="text"
@@ -109,7 +104,7 @@
         android:layout_width="match_parent"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="60dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
         android:layout_height="60dp"
         android:text="Sign Up"
         />
@@ -165,6 +160,13 @@
             android:text="Login!"
             android:textSize="15dp"
             />
+
     </LinearLayout>
+    <ProgressBar
+        android:id="@+id/signup_progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible" />
 
 </LinearLayout>

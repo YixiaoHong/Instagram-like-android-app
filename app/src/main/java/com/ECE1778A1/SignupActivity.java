@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,13 +53,15 @@ public class SignupActivity extends AppCompatActivity {
     private ImageView cameraIcon;
     private Uri imageUri;
     private FirebaseAuth.AuthStateListener myAuthStateListener;
+    private ProgressBar progressBar;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
-
+        progressBar = findViewById(R.id.signup_progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
         email = findViewById(R.id.editText_signup_email);
         password = findViewById(R.id.editText_signup_password);
         password2 = findViewById(R.id.editText_signup_password2);
@@ -74,6 +77,7 @@ public class SignupActivity extends AppCompatActivity {
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
                 final String str_email = email.getText().toString().trim();
                 final String str_pwd = password.getText().toString().trim();
                 String str_pwd2 = password2.getText().toString().trim();
@@ -109,6 +113,7 @@ public class SignupActivity extends AppCompatActivity {
                         myFirebaseAuth.createUserWithEmailAndPassword(str_email, str_pwd).addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
+                                progressBar.setVisibility(View.INVISIBLE);
                                 if(!task.isSuccessful()){
                                     if (task.getException() instanceof FirebaseAuthUserCollisionException){
                                         email.setError("The email is already in use");
