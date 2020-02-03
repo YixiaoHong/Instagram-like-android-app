@@ -45,7 +45,7 @@ public class HomeFragment extends Fragment {
         homeViewModel =
                 ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
-        Button logoutBtn = root.findViewById(R.id.btn_main_logout);
+//        Button logoutBtn = root.findViewById(R.id.btn_main_logout);
         final TextView userEmail = root.findViewById(R.id.home_page_user_email);
         final TextView userName = root.findViewById(R.id.home_page_user_name);
         final TextView userBio = root.findViewById(R.id.home_page_user_bio);
@@ -62,18 +62,18 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        //Prepare the signout button for the user
-        btnSignOut = root.findViewById(R.id.btn_main_logout);
-        btnSignOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                Intent signInPage = new Intent(getActivity(), LoginActivity.class);
-//                signInPage.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                getActivity().finish();
-                startActivity(signInPage);
-            }
-        });
+//        //Prepare the signout button for the user
+//        btnSignOut = root.findViewById(R.id.btn_main_logout);
+//        btnSignOut.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                FirebaseAuth.getInstance().signOut();
+//                Intent signInPage = new Intent(getActivity(), LoginActivity.class);
+////                signInPage.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                getActivity().finish();
+//                startActivity(signInPage);
+//            }
+//        });
 
         return root;
     }

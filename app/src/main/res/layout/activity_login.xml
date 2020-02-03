@@ -38,6 +38,7 @@
         android:drawableLeft="@drawable/ic_user"
         android:drawablePadding="5dp"
         android:hint="@string/email"
+        android:text="felixhong@live.com"
         />
     <EditText
         android:id="@+id/editText_login_password"
@@ -51,6 +52,7 @@
         android:drawablePadding="5dp"
         android:drawableLeft="@drawable/ic_lock"
         android:hint="@string/password"
+        android:text="123123"
         />
     <Button
         android:id="@+id/btn_login_login"
