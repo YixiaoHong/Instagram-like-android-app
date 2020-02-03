@@ -50,7 +50,8 @@
         android:inputType="textEmailAddress"
         android:drawableLeft="@drawable/ic_email"
         android:drawablePadding="5dp"
-        android:hint="@string/email" />
+        android:hint="@string/email"
+        android:text="test@test.com"/>
     <EditText
         android:id="@+id/editText_signup_password"
         android:layout_width="match_parent"
@@ -62,6 +63,7 @@
         android:drawablePadding="5dp"
         android:drawableLeft="@drawable/ic_lock"
         android:hint="@string/password"
+        android:text="123123"
         />
     <EditText
         android:id="@+id/editText_signup_password2"
@@ -74,6 +76,7 @@
         android:drawablePadding="5dp"
         android:drawableLeft="@drawable/ic_lock"
         android:hint="Comfirm Password"
+        android:text="123123"
         />
     <EditText
         android:id="@+id/editText_signup_username"
@@ -86,6 +89,7 @@
         android:drawableLeft="@drawable/ic_user"
         android:drawablePadding="5dp"
         android:hint="User Name"
+        android:text="123123"
         />
     <EditText
         android:id="@+id/editText_signup_user_bio"

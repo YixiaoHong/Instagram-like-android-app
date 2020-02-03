@@ -57,14 +57,6 @@ public class IndexActivity extends AppCompatActivity {
 
             if(currentuser!=null){
 
-//                if(!user.getImage().equals("sin imagen")){
-////                    String url_image = "linklink"+user.getImage();
-//                    try {
-////                        Glide.with(this).load(url_image).into(photo);
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
             }
         }catch (Exception e){
             e.printStackTrace();

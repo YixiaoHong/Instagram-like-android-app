@@ -16,9 +16,11 @@ import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Patterns;
 import android.view.View;
@@ -31,20 +33,30 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.ECE1778A1.model.UserInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
 
 public class SignupActivity extends AppCompatActivity {
 
     private EditText email, password,password2,userInputBio, userInputName;
+    private ImageView camera_icon;
     private Button btnSignUp;
     private TextView textBthLogin;
     private FirebaseAuth myFirebaseAuth;
@@ -55,6 +67,9 @@ public class SignupActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener myAuthStateListener;
     private ProgressBar progressBar;
 
+    //image
+    private StorageReference mStorageRef;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +77,7 @@ public class SignupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
         progressBar = findViewById(R.id.signup_progressBar);
         progressBar.setVisibility(View.INVISIBLE);
+        cameraIcon = findViewById(R.id.camera_icon);
         email = findViewById(R.id.editText_signup_email);
         password = findViewById(R.id.editText_signup_password);
         password2 = findViewById(R.id.editText_signup_password2);
@@ -69,8 +85,6 @@ public class SignupActivity extends AppCompatActivity {
         userInputBio = findViewById(R.id.editText_signup_user_bio);
         textBthLogin = findViewById(R.id.textView_sign_login_btn);
         btnSignUp = findViewById(R.id.btn_signup_signup);
-
-        cameraIcon = findViewById(R.id.camera_icon);
 
         myFirebaseAuth = FirebaseAuth.getInstance();
 
@@ -108,7 +122,11 @@ public class SignupActivity extends AppCompatActivity {
                         password.setError("The passwords do not match");
                         password2.setError("The passwords do not match");
                         password.requestFocus();
-                    } else{
+                    }
+                    else if(imageUri == null){
+                        Toast.makeText(SignupActivity.this,"Please take a photo",Toast.LENGTH_SHORT).show();
+                    }
+                    else{
                         progressBar.setVisibility(View.VISIBLE);
                         myFirebaseAuth.createUserWithEmailAndPassword(str_email, str_pwd).addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
@@ -118,7 +136,8 @@ public class SignupActivity extends AppCompatActivity {
                                     if (task.getException() instanceof FirebaseAuthUserCollisionException){
                                         email.setError("The email is already in use");
                                         email.requestFocus();
-                                    } else{
+                                    }
+                                    else{
                                         Toast.makeText(SignupActivity.this,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
                                     }
                                     progressBar.setVisibility(View.INVISIBLE);
@@ -129,18 +148,36 @@ public class SignupActivity extends AppCompatActivity {
                                     //input into data base
                                     db = FirebaseFirestore.getInstance();
                                     db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).set(dataObj);
-                                    FirebaseUser loginFirebaseUser = myFirebaseAuth.getCurrentUser();
+                                    final FirebaseUser loginFirebaseUser = myFirebaseAuth.getCurrentUser();
 
-                                    //navigate to main page
-                                    if( loginFirebaseUser != null ){
-                                        //user exist
-                                        Toast.makeText(SignupActivity.this,"Signup Succeed, You are successfully logged in", Toast.LENGTH_SHORT).show();
-                                        Intent indexActivity_int = new Intent(SignupActivity.this, IndexActivity.class);
-                                        startActivity(indexActivity_int);
-                                    } else{
-                                        Toast.makeText(SignupActivity.this,"Need to re-login",Toast.LENGTH_SHORT).show();
-                                    }
-                                    progressBar.setVisibility(View.INVISIBLE);
+                                    //upload user profile  image to storage
+                                    mStorageRef = FirebaseStorage.getInstance().getReference();
+
+                                    //upload photo to firebase
+                                    StorageReference riversRef = mStorageRef.child("user_icon/"+FirebaseAuth.getInstance().getCurrentUser().getUid()+"/displayPic.jpg");
+                                    System.out.println(imageUri.getPath());
+                                    riversRef.putFile(imageUri)
+                                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                @Override
+                                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                    progressBar.setVisibility(View.INVISIBLE);
+                                                    //navigate to main page
+                                                    if( loginFirebaseUser != null ){
+                                                        //user exist
+                                                        Toast.makeText(SignupActivity.this,"Signup Succeed, You are successfully logged in", Toast.LENGTH_SHORT).show();
+                                                        Intent indexActivity_int = new Intent(SignupActivity.this, IndexActivity.class);
+                                                        startActivity(indexActivity_int);
+                                                    } else{
+                                                        Toast.makeText(SignupActivity.this,"Need to re-login",Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception exception) {
+                                                    Toast.makeText(SignupActivity.this,"Failed to upload display picture",Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
                                 }
                             }
                         });
@@ -161,24 +198,25 @@ public class SignupActivity extends AppCompatActivity {
         });
 
         cameraIcon.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
-                //if the system os >= current version, request runtime permission
-                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-
-                    //permission not eabled
-                    if(checkSelfPermission(Manifest.permission.CAMERA)== PackageManager.PERMISSION_DENIED
-                            || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
-                        String[] permission = {Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
-                        //popup to use permission
-                        requestPermissions(permission,1000);
+                if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.CAMERA}, 100);
+                } else {
+                    Intent takephoto_int = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (takephoto_int.resolveActivity(getPackageManager()) != null) {
+                        //create temp path
+                        File folder = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/temp");
+                        if (!folder.exists()) {
+                            folder.mkdirs();
+                        }
+                        File photoFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/temp/displayPic.jpg");
+                        imageUri = FileProvider.getUriForFile(SignupActivity.this, "com.ECE1778A1.path",
+                                photoFile);
+                        takephoto_int.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                        startActivityForResult(takephoto_int, 1);
                     }
-                    //permission enabled
-                    else{
-                        openCamera();
-
-                    }
-
                 }
             }
         });
