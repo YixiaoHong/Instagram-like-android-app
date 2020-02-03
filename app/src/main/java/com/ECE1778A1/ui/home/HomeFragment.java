@@ -12,25 +12,44 @@
 
 package com.ECE1778A1.ui.home;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.ECE1778A1.R;
+import com.ECE1778A1.SignupActivity;
+import com.ECE1778A1.model.PhotoInfo;
 import com.ECE1778A1.model.UserInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -39,8 +58,10 @@ import com.google.firebase.firestore.auth.User;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.util.Date;
 
 public class HomeFragment extends Fragment {
 
@@ -50,8 +71,13 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore db;
     private String displayImagePath;
     User user;
-    private StorageReference picStorage;
+    private StorageReference mStorageRef;
     private ImageView pofileimg;
+    private Uri takenImageUri;
+    private String currentTakenImagename;
+
+    //camera icon
+    FloatingActionButton camera_btn;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -64,8 +90,15 @@ public class HomeFragment extends Fragment {
         final TextView userBio = root.findViewById(R.id.home_page_user_bio);
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         pofileimg = root.findViewById(R.id.user_icon);
-        picStorage = (picStorage == null) ? FirebaseStorage.getInstance().getReference() : picStorage;
-        //input into data base
+
+        //camera btn
+        camera_btn = root.findViewById(R.id.add_img);
+
+        //storage
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+
+
+        // load data base
         db = FirebaseFirestore.getInstance();
         db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -83,7 +116,7 @@ public class HomeFragment extends Fragment {
         final File img = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid() + "/", "displayPic.jpg");
         if (!img.exists()) {
             String path = "user_icon/" + user.getUid() + "/" + "displayPic.jpg";
-            StorageReference displayPicRef = picStorage.child(path);
+            StorageReference displayPicRef = mStorageRef.child(path);
             displayPicRef.getFile(img)
                     .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                         @Override
@@ -95,6 +128,88 @@ public class HomeFragment extends Fragment {
             pofileimg.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
         }
 
+        //Set camera icon listener
+        camera_btn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View v) {
+                if (getActivity().checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.CAMERA}, 100);
+                } else {
+                    Intent takephoto_int = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (takephoto_int.resolveActivity(getActivity().getPackageManager()) != null) {
+                        //create temp path
+                        File folder = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/temp");
+                        if (!folder.exists()) {
+                            folder.mkdirs();
+                        }
+                        //Add time stemp
+                        Date date = new Date();
+                        currentTakenImagename = String.valueOf(new Timestamp(date).getSeconds());
+                        //save file
+                        File photoFile = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid() + "/" +currentTakenImagename+".jpg");
+                        takenImageUri = FileProvider.getUriForFile(getActivity(), "com.ECE1778A1.path",
+                                photoFile);
+                        takephoto_int.putExtra(MediaStore.EXTRA_OUTPUT, takenImageUri);
+                        startActivityForResult(takephoto_int, 1);
+                    }
+                }
+            }
+        });
+
         return root;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            //now confirm with user to upload image
+            final Dialog builder = new Dialog(getActivity());
+            builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            builder.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            builder.setContentView(R.layout.photo_confirm);
+            ImageView imageView = builder.findViewById(R.id.photo_display_confirm);
+            Button btn_confirm = builder.findViewById(R.id.photo_confirm_upload);
+            Button btn_cancel = builder.findViewById(R.id.photo_confirm_cancel);
+            imageView.setImageURI(takenImageUri);
+
+            btn_confirm.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //User confirm to upload image
+                    //input into data base
+                    PhotoInfo photoObj = new PhotoInfo(FirebaseAuth.getInstance().getCurrentUser().getUid(),currentTakenImagename+".jpg",currentTakenImagename);
+                    db = FirebaseFirestore.getInstance();
+                    db.collection("photos/").add(photoObj);
+                    //input into storage
+                    mStorageRef = FirebaseStorage.getInstance().getReference();
+                    //upload photo to firebase
+                    StorageReference riversRef = mStorageRef.child("photo/"+FirebaseAuth.getInstance().getCurrentUser().getUid()+"/"+currentTakenImagename+".jpg");
+                    riversRef.putFile(takenImageUri)
+                            .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(getActivity(),"Photo uploaded",Toast.LENGTH_SHORT).show();
+                                    }
+                                    else {
+                                        Toast.makeText(getActivity(),"Failed to upload image",Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                    builder.dismiss();
+                }
+            });
+
+            btn_cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    builder.dismiss();
+                }
+            });
+            builder.show();
+
+        }
     }
 }
