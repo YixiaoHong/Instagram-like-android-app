@@ -77,7 +77,6 @@ public class SignupActivity extends AppCompatActivity {
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
                 final String str_email = email.getText().toString().trim();
                 final String str_pwd = password.getText().toString().trim();
                 String str_pwd2 = password2.getText().toString().trim();
@@ -110,6 +109,7 @@ public class SignupActivity extends AppCompatActivity {
                         password2.setError("The passwords do not match");
                         password.requestFocus();
                     } else{
+                        progressBar.setVisibility(View.VISIBLE);
                         myFirebaseAuth.createUserWithEmailAndPassword(str_email, str_pwd).addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -121,6 +121,7 @@ public class SignupActivity extends AppCompatActivity {
                                     } else{
                                         Toast.makeText(SignupActivity.this,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
                                     }
+                                    progressBar.setVisibility(View.INVISIBLE);
                                 } else {
                                     // create a map object
                                     UserInfo dataObj = new UserInfo(str_email,str_userName,str_userBio);
@@ -139,6 +140,7 @@ public class SignupActivity extends AppCompatActivity {
                                     } else{
                                         Toast.makeText(SignupActivity.this,"Need to re-login",Toast.LENGTH_SHORT).show();
                                     }
+                                    progressBar.setVisibility(View.INVISIBLE);
                                 }
                             }
                         });
@@ -147,6 +149,7 @@ public class SignupActivity extends AppCompatActivity {
                     Toast.makeText(SignupActivity.this,"An unknown error occurred",Toast.LENGTH_SHORT).show();
                 }
             }
+
         });
 
         //redirect to login page
