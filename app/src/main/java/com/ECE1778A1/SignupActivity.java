@@ -65,6 +65,7 @@ public class SignupActivity extends AppCompatActivity {
     private UserInfo userInfo;
     private ImageView cameraIcon;
     private Uri imageUri;
+    private Uri finalUri;
     private FirebaseAuth.AuthStateListener myAuthStateListener;
     private ProgressBar progressBar;
     private TextView camera_tip;
@@ -137,7 +138,7 @@ public class SignupActivity extends AppCompatActivity {
                         password2.setError("The passwords do not match");
                         password.requestFocus();
                     }
-                    else if(imageUri == null){
+                    else if(finalUri == null){
                         camera_tip.setError("Please Take a Profile Photo");
                         Toast.makeText(SignupActivity.this,"Please take a photo",Toast.LENGTH_SHORT).show();
                     }
@@ -285,6 +286,7 @@ public class SignupActivity extends AppCompatActivity {
 //            cameraIcon.setImageURI(imageUri);
             File icon_img = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/temp/displayPic.jpg");
             cameraIcon.setImageBitmap(BitmapFactory.decodeFile(icon_img.getAbsolutePath()));
+            finalUri = FileProvider.getUriForFile(SignupActivity.this, "com.ECE1778A1.path", icon_img);
             if (camera_tip.getError()!=null){
                 camera_tip.setError(null);
             }
