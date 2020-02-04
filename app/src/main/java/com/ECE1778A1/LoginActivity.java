@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
                                 Intent Index_int = new Intent(LoginActivity.this,IndexActivity.class);
                                 startActivity(Index_int);
                             } else{
-                                Toast.makeText(LoginActivity.this,"Login failed, please login again",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this,"Login failed, please try again",Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
