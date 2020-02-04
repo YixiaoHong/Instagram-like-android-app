@@ -266,6 +266,7 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     //User confirm to upload image
+                    Toast.makeText(getActivity(),"Photo uploading",Toast.LENGTH_SHORT).show();
                     //input into data base
                     PhotoInfo photoObj = new PhotoInfo(FirebaseAuth.getInstance().getCurrentUser().getUid(),currentTakenImagename+".jpg",currentTakenImagename);
                     db = FirebaseFirestore.getInstance();

@@ -94,11 +94,22 @@ public class SignupActivity extends AppCompatActivity {
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
                 final String str_email = email.getText().toString().trim();
                 final String str_pwd = password.getText().toString().trim();
                 String str_pwd2 = password2.getText().toString().trim();
                 final String str_userName = userInputName.getText().toString().trim();
                 final String str_userBio = userInputBio.getText().toString().trim();
+
+
+
+                //Null all errors
+                email.setError(null);
+                password.setError(null);
+                password2.setError(null);
+                userInputName.setError(null);
+                camera_tip.setError(null);
 
                 if(str_email.isEmpty()){
                     email.setError("Please fill in the email");
@@ -271,7 +282,9 @@ public class SignupActivity extends AppCompatActivity {
         //after image captured from camera
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            cameraIcon.setImageURI(imageUri);
+//            cameraIcon.setImageURI(imageUri);
+            File icon_img = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/temp/displayPic.jpg");
+            cameraIcon.setImageBitmap(BitmapFactory.decodeFile(icon_img.getAbsolutePath()));
             if (camera_tip.getError()!=null){
                 camera_tip.setError(null);
             }

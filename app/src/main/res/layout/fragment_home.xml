@@ -46,7 +46,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:textColor="#324ca8"
-                android:text="UserName"
                 android:textSize="15dp"
                 />
             <TextView
@@ -55,14 +54,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginLeft="20dp"
-                android:text="UserEmail" />
+                 />
             <TextView
                 android:id="@+id/home_page_user_bio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginLeft="20dp"
-                android:text="UserBio" />
+                 />
 
         </LinearLayout>
 
