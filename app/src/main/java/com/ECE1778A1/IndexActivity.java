@@ -13,7 +13,9 @@
 package com.ECE1778A1;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,8 +31,14 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.io.File;
 
 public class IndexActivity extends AppCompatActivity {
 
@@ -39,6 +47,7 @@ public class IndexActivity extends AppCompatActivity {
     private Button btn_logout;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private StorageReference mStorageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,15 +56,38 @@ public class IndexActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         View sideHeader = ((NavigationView)findViewById(R.id.nav_view)).getHeaderView(0);
 //        TextView mainPage_t = (TextView)findViewById(R.id.nav_host_fragment); todo: fix this
-        ImageView photo = sideHeader.findViewById(R.id.side_bar_user_image);
+        final ImageView photo = sideHeader.findViewById(R.id.side_bar_user_image);
 
         try{
             currentuser = FirebaseAuth.getInstance().getCurrentUser().getEmail();
             ((TextView) sideHeader.findViewById(R.id.side_bar_email)).setText(currentuser);
 
             if(currentuser!=null){
+                //todo: user icon
+//                //get profile image
+//                File folder =  new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
+//                if (!folder.exists()){
+//                    folder.mkdirs();
+//                }
+//
+//                mStorageRef = FirebaseStorage.getInstance().getReference();
+//                final File img = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/", "displayPic.jpg");
+//                if (!img.exists()) {
+//                    String path = "user_icon/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/" + "displayPic.jpg";
+//                    StorageReference displayPicRef = mStorageRef.child(path);
+//                    displayPicRef.getFile(img)
+//                            .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+//                                @Override
+//                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+//                                    photo.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
+//                                }
+//                            });
+//                } else {
+//                    photo.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
+//                }
 
             }
         }catch (Exception e){

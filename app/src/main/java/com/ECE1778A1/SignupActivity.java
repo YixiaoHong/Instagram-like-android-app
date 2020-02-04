@@ -202,21 +202,18 @@ public class SignupActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
-                if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.CAMERA}, 100);
-                } else {
-                    Intent takephoto_int = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    if (takephoto_int.resolveActivity(getPackageManager()) != null) {
-                        //create temp path
-                        File folder = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/temp");
-                        if (!folder.exists()) {
-                            folder.mkdirs();
-                        }
-                        File photoFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/temp/displayPic.jpg");
-                        imageUri = FileProvider.getUriForFile(SignupActivity.this, "com.ECE1778A1.path",
-                                photoFile);
-                        takephoto_int.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                        startActivityForResult(takephoto_int, 1);
+                //if the system os >= current version, request runtime permission
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
+                    //permission not eabled
+                    if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                        String[] permission = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                        //popup to use permission
+                        requestPermissions(permission, 1000);
+                    }
+                    //permission enabled
+                    else {
+                        openCamera();
+
                     }
                 }
             }
@@ -240,13 +237,23 @@ public class SignupActivity extends AppCompatActivity {
         imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,val);
         //open camera intent
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
-        startActivityForResult(cameraIntent,1001);
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+            //create temp path
+            File folder = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/temp");
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            File photoFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/temp/displayPic.jpg");
+            imageUri = FileProvider.getUriForFile(SignupActivity.this, "com.ECE1778A1.path", photoFile);
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(cameraIntent, 1001);
+        }
     }
 
     //to handle permission result
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
         if (requestCode==1000){
             if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
                 openCamera();

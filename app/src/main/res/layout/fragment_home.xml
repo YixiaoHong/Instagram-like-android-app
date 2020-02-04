@@ -23,7 +23,7 @@
         android:layout_marginTop="2dp"
         android:layout_marginBottom="2dp"
         android:orientation="horizontal"
-        android:background="#b2b4bf">
+        android:background="#f0ede6">
 
         <ImageView
             android:id="@+id/user_icon"
@@ -68,7 +68,7 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="5">
@@ -78,15 +78,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical" />
-    </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_menu_camera"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
         />
+    </RelativeLayout>
+
+
 
 </LinearLayout>
