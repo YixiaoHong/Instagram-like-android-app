@@ -1,6 +1,7 @@
 package com.ECE1778A1;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.view.LayoutInflater;
@@ -19,11 +20,13 @@ import java.util.List;
 public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
     private List<PhotoInfo> mPhotos;
     private String FilePath;
+    private Activity curActivity;
 
     // Provide a constructor
-    public PicAdapter(String Path, List<PhotoInfo> Photos) {
+    public PicAdapter(Activity Activity,String Path, List<PhotoInfo> Photos) {
         this.mPhotos = Photos;
         this.FilePath = Path;
+        this.curActivity = Activity;
     }
 
     // Return the size
@@ -47,6 +50,17 @@ public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
         //holder.textView. todo: replace image with url
         final File img = new File(FilePath + mPhotos.get(position).getPhoto_id());
         holder.imgView.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
+
+
+        holder.imgView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent largeImage_int = new Intent(curActivity, largeImage.class);
+                largeImage_int.putExtra("uriPath",img.getAbsolutePath());
+                curActivity.startActivity(largeImage_int);
+
+            }
+        });
 
     }
 

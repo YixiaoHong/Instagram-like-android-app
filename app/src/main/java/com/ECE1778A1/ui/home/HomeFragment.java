@@ -72,6 +72,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -82,13 +83,16 @@ public class HomeFragment extends Fragment {
     private Button btnSignOut;
     private FirebaseFirestore db;
     private String displayImagePath;
-    User user;
     private StorageReference mStorageRef;
     private ImageView pofileimg;
     private Uri takenImageUri;
     private String currentTakenImagename;
     private PicAdapter mAdapter;
     private RecyclerView mRcyView;
+    private List<PhotoInfo> photoInfoList;
+    private List<PhotoInfo> photoDownloadedList;
+    private String Path;
+    private FirebaseUser user;
 
     //camera icon
     FloatingActionButton camera_btn;
@@ -103,12 +107,9 @@ public class HomeFragment extends Fragment {
         final TextView userName = root.findViewById(R.id.home_page_user_name);
         final TextView userBio = root.findViewById(R.id.home_page_user_bio);
         mRcyView = root.findViewById(R.id.recycler_view);
-
-
-
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        Path = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/" + user.getUid() + "/";
         pofileimg = root.findViewById(R.id.user_icon);
-
 
         //camera btn
         camera_btn = root.findViewById(R.id.add_img);
@@ -178,12 +179,17 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        refreshPhotoList();
+        return root;
+    }
+
+    void refreshPhotoList(){
+        //clean the dict
         //Init Photo List views
-        final List<PhotoInfo> photoInfoList = new ArrayList<>();
-        final List<PhotoInfo> photoDownloadedList = new ArrayList<>();
-        final String Path = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/" + user.getUid() + "/";
+        photoInfoList = new ArrayList<>();
+        photoDownloadedList = new ArrayList<>();
         //init adapter
-        mAdapter = new PicAdapter(Path,photoDownloadedList);
+        mAdapter = new PicAdapter(getActivity(),Path,photoDownloadedList);
         //init recycler view
         mRcyView.setAdapter(mAdapter);
         GridLayoutManager mGLM = new GridLayoutManager(getActivity(),3);
@@ -192,10 +198,8 @@ public class HomeFragment extends Fragment {
         //Get all the photo data from database
         // Create a reference to the photos collection
         CollectionReference photoRef = db.collection("photos");
-
         // Create a query against the collection.
         Query query = photoRef.whereEqualTo("user_uid", user.getUid());
-
         db.collection("photos")
                 .whereEqualTo("user_uid", user.getUid())
                 .get()
@@ -214,7 +218,7 @@ public class HomeFragment extends Fragment {
                                 File folder =  new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid());
                                 if (!folder.exists()){
                                     folder.mkdirs();
-                                }
+                            }
                                 File download_image = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid() + "/", eachPhoto.getPhoto_id());
                                 if (!download_image.exists()) {
                                     String path = "photo/" + user.getUid() + "/" + eachPhoto.getPhoto_id();
@@ -225,12 +229,16 @@ public class HomeFragment extends Fragment {
                                                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                                     //Successfully download the image
                                                     photoDownloadedList.add(eachPhoto);
+                                                    //sort list
+                                                    Collections.sort(photoDownloadedList);
                                                     mAdapter.notifyDataSetChanged();
                                                 }
                                             });
                                 } else {
                                     //Image already exist
                                     photoDownloadedList.add(eachPhoto);
+                                    //sort list
+                                    Collections.sort(photoDownloadedList);
                                     mAdapter.notifyDataSetChanged();
                                 }
                             }
@@ -239,7 +247,6 @@ public class HomeFragment extends Fragment {
                         }
                     }
                 });
-        return root;
     }
 
     @Override
@@ -274,6 +281,8 @@ public class HomeFragment extends Fragment {
                                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                     if (task.isSuccessful()) {
                                         Toast.makeText(getActivity(),"Photo uploaded",Toast.LENGTH_SHORT).show();
+                                        refreshPhotoList();
+
                                     }
                                     else {
                                         Toast.makeText(getActivity(),"Failed to upload image",Toast.LENGTH_SHORT).show();

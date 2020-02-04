@@ -14,7 +14,7 @@ package com.ECE1778A1.model;
 
 import java.io.Serializable;
 
-public class PhotoInfo implements Serializable {
+public class PhotoInfo implements Serializable,Comparable{
 
     private String user_uid, photo_id, time_stemp;
 
@@ -49,5 +49,12 @@ public class PhotoInfo implements Serializable {
 
     public void setTime_stemp(String time_stemp) {
         this.time_stemp = time_stemp;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Integer me = Integer.valueOf(this.time_stemp);
+        Integer other = Integer.valueOf(((PhotoInfo)o).getTime_stemp());
+        return other.compareTo(me);
     }
 }
