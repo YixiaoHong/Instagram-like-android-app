@@ -1,5 +1,8 @@
 package com.ECE1778A1;
 
+import android.app.Activity;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +13,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ECE1778A1.model.PhotoInfo;
 
+import java.io.File;
 import java.util.List;
 
-class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
+public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
     private List<PhotoInfo> mPhotos;
+    private String FilePath;
 
     // Provide a constructor
-    public PicAdapter(List<PhotoInfo> mPhotos) {
-        this.mPhotos = mPhotos;
+    public PicAdapter(String Path, List<PhotoInfo> Photos) {
+        this.mPhotos = Photos;
+        this.FilePath = Path;
     }
 
     // Return the size
@@ -39,16 +45,18 @@ class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         //holder.textView. todo: replace image with url
+        final File img = new File(FilePath + mPhotos.get(position).getPhoto_id());
+        holder.imgView.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
 
     }
 
     // Provide a reference to the views for each entry
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        public ImageView textView;
+        public ImageView imgView;
 
         public MyViewHolder(View v) {
             super(v);
-            textView = itemView.findViewById(R.id.img_id);
+            imgView = itemView.findViewById(R.id.img_id);
         }
     }
 

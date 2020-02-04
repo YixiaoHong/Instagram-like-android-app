@@ -41,7 +41,10 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.ECE1778A1.PicAdapter;
 import com.ECE1778A1.R;
 import com.ECE1778A1.SignupActivity;
 import com.ECE1778A1.model.PhotoInfo;
@@ -84,6 +87,8 @@ public class HomeFragment extends Fragment {
     private ImageView pofileimg;
     private Uri takenImageUri;
     private String currentTakenImagename;
+    private PicAdapter mAdapter;
+    private RecyclerView mRcyView;
 
     //camera icon
     FloatingActionButton camera_btn;
@@ -97,8 +102,13 @@ public class HomeFragment extends Fragment {
         final TextView userEmail = root.findViewById(R.id.home_page_user_email);
         final TextView userName = root.findViewById(R.id.home_page_user_name);
         final TextView userBio = root.findViewById(R.id.home_page_user_bio);
+        mRcyView = root.findViewById(R.id.recycler_view);
+
+
+
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         pofileimg = root.findViewById(R.id.user_icon);
+
 
         //camera btn
         camera_btn = root.findViewById(R.id.add_img);
@@ -118,6 +128,8 @@ public class HomeFragment extends Fragment {
                 userBio.setText("Bio: "+ userInfo.getUserBio());
             }
         });
+
+        //get profile image
         File folder =  new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid());
         if (!folder.exists()){
             folder.mkdirs();
@@ -168,6 +180,15 @@ public class HomeFragment extends Fragment {
 
         //Init Photo List views
         final List<PhotoInfo> photoInfoList = new ArrayList<>();
+        final List<PhotoInfo> photoDownloadedList = new ArrayList<>();
+        final String Path = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/" + user.getUid() + "/";
+        //init adapter
+        mAdapter = new PicAdapter(Path,photoDownloadedList);
+        //init recycler view
+        mRcyView.setAdapter(mAdapter);
+        GridLayoutManager mGLM = new GridLayoutManager(getActivity(),3);
+        mRcyView.setLayoutManager(mGLM);
+
         //Get all the photo data from database
         // Create a reference to the photos collection
         CollectionReference photoRef = db.collection("photos");
@@ -189,7 +210,7 @@ public class HomeFragment extends Fragment {
                                 Log.d("OUTPUT!!", document.getId() + " => " + fi.getPhoto_id());
                             }
                             //Collected all info need to download all images
-                            for ( PhotoInfo eachPhoto: photoInfoList) {
+                            for ( final PhotoInfo eachPhoto: photoInfoList) {
                                 File folder =  new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid());
                                 if (!folder.exists()){
                                     folder.mkdirs();
@@ -203,10 +224,14 @@ public class HomeFragment extends Fragment {
                                                 @Override
                                                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                                     //Successfully download the image
+                                                    photoDownloadedList.add(eachPhoto);
+                                                    mAdapter.notifyDataSetChanged();
                                                 }
                                             });
                                 } else {
                                     //Image already exist
+                                    photoDownloadedList.add(eachPhoto);
+                                    mAdapter.notifyDataSetChanged();
                                 }
                             }
                         } else {
