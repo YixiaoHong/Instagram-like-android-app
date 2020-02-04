@@ -52,6 +52,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.io.IOException;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -222,6 +223,17 @@ public class SignupActivity extends AppCompatActivity {
         });
     }
 
+    private File createImageFile() throws IOException {
+        String imageFileName = "displayPic";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        return image;
+    }
+
     private void openCamera(){
         ContentValues val = new ContentValues();
         val.put(MediaStore.Images.Media.TITLE,"Picture");
@@ -252,4 +264,6 @@ public class SignupActivity extends AppCompatActivity {
             cameraIcon.setImageURI(imageUri);
         }
     }
+
+
 }

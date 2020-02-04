@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,16 +53,24 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.User;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.json.JSONObject;
+
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class HomeFragment extends Fragment {
 
@@ -157,6 +166,54 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        //Init Photo List views
+        final List<PhotoInfo> photoInfoList = new ArrayList<>();
+        //Get all the photo data from database
+        // Create a reference to the photos collection
+        CollectionReference photoRef = db.collection("photos");
+
+        // Create a query against the collection.
+        Query query = photoRef.whereEqualTo("user_uid", user.getUid());
+
+        db.collection("photos")
+                .whereEqualTo("user_uid", user.getUid())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            //Get all photoInfo list
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                PhotoInfo fi = document.toObject(PhotoInfo.class);
+                                photoInfoList.add(fi);
+                                Log.d("OUTPUT!!", document.getId() + " => " + fi.getPhoto_id());
+                            }
+                            //Collected all info need to download all images
+                            for ( PhotoInfo eachPhoto: photoInfoList) {
+                                File folder =  new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid());
+                                if (!folder.exists()){
+                                    folder.mkdirs();
+                                }
+                                File download_image = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid() + "/", eachPhoto.getPhoto_id());
+                                if (!download_image.exists()) {
+                                    String path = "photo/" + user.getUid() + "/" + eachPhoto.getPhoto_id();
+                                    StorageReference displayPicRef = mStorageRef.child(path);
+                                    displayPicRef.getFile(download_image)
+                                            .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                                @Override
+                                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                                    //Successfully download the image
+                                                }
+                                            });
+                                } else {
+                                    //Image already exist
+                                }
+                            }
+                        } else {
+                            Log.d("ERROR", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
         return root;
     }
 
