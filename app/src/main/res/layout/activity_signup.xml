@@ -27,9 +27,9 @@
         />
     <ImageView
         android:id="@+id/camera_icon"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:src="@drawable/ic_photo"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_camera"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="5dp"
         />
