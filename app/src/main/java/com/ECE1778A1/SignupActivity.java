@@ -67,6 +67,7 @@ public class SignupActivity extends AppCompatActivity {
     private Uri imageUri;
     private FirebaseAuth.AuthStateListener myAuthStateListener;
     private ProgressBar progressBar;
+    private TextView camera_tip;
 
     //image
     private StorageReference mStorageRef;
@@ -86,6 +87,7 @@ public class SignupActivity extends AppCompatActivity {
         userInputBio = findViewById(R.id.editText_signup_user_bio);
         textBthLogin = findViewById(R.id.textView_sign_login_btn);
         btnSignUp = findViewById(R.id.btn_signup_signup);
+        camera_tip = findViewById(R.id.camera_tip);
 
         myFirebaseAuth = FirebaseAuth.getInstance();
 
@@ -125,6 +127,7 @@ public class SignupActivity extends AppCompatActivity {
                         password.requestFocus();
                     }
                     else if(imageUri == null){
+                        camera_tip.setError("Please Take a Profile Photo");
                         Toast.makeText(SignupActivity.this,"Please take a photo",Toast.LENGTH_SHORT).show();
                     }
                     else{
@@ -269,6 +272,9 @@ public class SignupActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             cameraIcon.setImageURI(imageUri);
+            if (camera_tip.getError()!=null){
+                camera_tip.setError(null);
+            }
         }
     }
 
