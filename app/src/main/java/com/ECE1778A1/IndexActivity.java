@@ -49,6 +49,7 @@ public class IndexActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private StorageReference mStorageRef;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +113,7 @@ public class IndexActivity extends AppCompatActivity {
                 return true;
             }
         });
+
     }
 
     @Override
