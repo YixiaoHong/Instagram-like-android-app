@@ -67,27 +67,27 @@ public class IndexActivity extends AppCompatActivity {
 
             if(currentuser!=null){
                 //todo: user icon
-//                //get profile image
-//                File folder =  new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
-//                if (!folder.exists()){
-//                    folder.mkdirs();
-//                }
-//
-//                mStorageRef = FirebaseStorage.getInstance().getReference();
-//                final File img = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/", "displayPic.jpg");
-//                if (!img.exists()) {
-//                    String path = "user_icon/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/" + "displayPic.jpg";
-//                    StorageReference displayPicRef = mStorageRef.child(path);
-//                    displayPicRef.getFile(img)
-//                            .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-//                                @Override
-//                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-//                                    photo.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
-//                                }
-//                            });
-//                } else {
-//                    photo.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
-//                }
+                //get profile image
+                File folder =  new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
+                if (!folder.exists()){
+                    folder.mkdirs();
+                }
+
+                mStorageRef = FirebaseStorage.getInstance().getReference();
+                final File img = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/", "displayPic.jpg");
+                if (!img.exists()) {
+                    String path = "user_icon/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/" + "displayPic.jpg";
+                    StorageReference displayPicRef = mStorageRef.child(path);
+                    displayPicRef.getFile(img)
+                            .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                    photo.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
+                                }
+                            });
+                } else {
+                    photo.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
+                }
 
             }
         }catch (Exception e){
@@ -99,8 +99,7 @@ public class IndexActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_plaza,
-                R.id.nav_logout)
+                R.id.nav_home,R.id.nav_logout)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);

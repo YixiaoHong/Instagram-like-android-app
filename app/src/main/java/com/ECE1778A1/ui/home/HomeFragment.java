@@ -200,8 +200,7 @@ public class HomeFragment extends Fragment {
         CollectionReference photoRef = db.collection("photos");
         // Create a query against the collection.
         Query query = photoRef.whereEqualTo("user_uid", user.getUid());
-        db.collection("photos")
-                .whereEqualTo("user_uid", user.getUid())
+        db.collection("photos").whereEqualTo("user_uid", user.getUid())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
