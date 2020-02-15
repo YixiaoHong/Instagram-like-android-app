@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -93,6 +94,7 @@ public class HomeFragment extends Fragment {
     private List<PhotoInfo> photoDownloadedList;
     private String Path;
     private FirebaseUser user;
+    private EditText photo_caption;
 
     //camera icon
     FloatingActionButton camera_btn;
@@ -106,6 +108,7 @@ public class HomeFragment extends Fragment {
         final TextView userEmail = root.findViewById(R.id.home_page_user_email);
         final TextView userName = root.findViewById(R.id.home_page_user_name);
         final TextView userBio = root.findViewById(R.id.home_page_user_bio);
+
         mRcyView = root.findViewById(R.id.recycler_view);
         user = FirebaseAuth.getInstance().getCurrentUser();
         Path = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/" + user.getUid() + "/";
@@ -113,6 +116,8 @@ public class HomeFragment extends Fragment {
 
         //camera btn
         camera_btn = root.findViewById(R.id.add_img);
+        //caption
+        photo_caption = root.findViewById(R.id.photo_display_caption);
 
         //storage
         mStorageRef = FirebaseStorage.getInstance().getReference();
@@ -260,7 +265,9 @@ public class HomeFragment extends Fragment {
             ImageView imageView = builder.findViewById(R.id.photo_display_confirm);
             Button btn_confirm = builder.findViewById(R.id.photo_confirm_upload);
             Button btn_cancel = builder.findViewById(R.id.photo_confirm_cancel);
+            final EditText photo_caption = builder.findViewById(R.id.photo_display_caption);
             imageView.setImageURI(takenImageUri);
+
 
             btn_confirm.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -268,7 +275,8 @@ public class HomeFragment extends Fragment {
                     //User confirm to upload image
                     Toast.makeText(getActivity(),"Photo uploading",Toast.LENGTH_SHORT).show();
                     //input into data base
-                    PhotoInfo photoObj = new PhotoInfo(FirebaseAuth.getInstance().getCurrentUser().getUid(),currentTakenImagename+".jpg",currentTakenImagename);
+                    String str_caption = photo_caption.getText().toString();
+                    PhotoInfo photoObj = new PhotoInfo(FirebaseAuth.getInstance().getCurrentUser().getUid(),currentTakenImagename+".jpg",currentTakenImagename,str_caption);
                     db = FirebaseFirestore.getInstance();
                     db.collection("photos/").add(photoObj);
                     //input into storage
