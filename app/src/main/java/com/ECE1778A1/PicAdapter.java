@@ -49,8 +49,14 @@ public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         //holder.textView. todo: replace image with url
-        final File img = new File(FilePath + mPhotos.get(position).getPhoto_id());
+        final File img = new File(FilePath + mPhotos.get(position).getUser_uid() + "/" + mPhotos.get(position).getPhoto_id());
+        final File img_ic = new File(FilePath + mPhotos.get(position).getUser_uid() + "/"+ "displayPic.jpg");
+
+
         holder.imgView.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
+
+        final String str_img_owner = mPhotos.get(position).getUser_name();
+        final String str_img_caption = mPhotos.get(position).getCaption();
 
 
         holder.imgView.setOnClickListener(new View.OnClickListener() {
@@ -58,6 +64,9 @@ public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
             public void onClick(View view) {
                 Intent largeImage_int = new Intent(curActivity, largeImage.class);
                 largeImage_int.putExtra("uriPath",img.getAbsolutePath());
+                largeImage_int.putExtra("ic_uriPath",img_ic.getAbsolutePath());
+                largeImage_int.putExtra("str_img_owner",str_img_owner);
+                largeImage_int.putExtra("str_img_caption",str_img_caption);
                 curActivity.startActivity(largeImage_int);
 
             }
@@ -72,6 +81,7 @@ public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
         public MyViewHolder(View v) {
             super(v);
             imgView = itemView.findViewById(R.id.img_id);
+
         }
     }
 

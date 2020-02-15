@@ -108,7 +108,7 @@ public class SlideshowFragment extends Fragment {
 
         //storage
         mStorageRef = FirebaseStorage.getInstance().getReference();
-        Path = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/" + user.getUid() + "/";
+        Path = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/";
 
         //database
         db = FirebaseFirestore.getInstance();
@@ -170,9 +170,7 @@ public class SlideshowFragment extends Fragment {
         // Create a reference to the photos collection
         CollectionReference photoRef = db.collection("photos");
         // Create a query against the collection.
-        Query query = photoRef.whereEqualTo("user_uid", user.getUid());
-        db.collection("photos").whereEqualTo("user_uid", user.getUid())
-                .get()
+        db.collection("photos").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -187,31 +185,82 @@ public class SlideshowFragment extends Fragment {
                             for ( final PhotoInfo eachPhoto: photoInfoList) {
 
                                 //check all folders created
-                                File folder =  new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid());
+                                File folder =  new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + eachPhoto.getUser_uid());
                                 if (!folder.exists()){
                                     folder.mkdirs();
                                 }
-                                File download_image = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid() + "/", eachPhoto.getPhoto_id());
+                                File download_image = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + eachPhoto.getUser_uid() + "/", eachPhoto.getPhoto_id());
                                 if (!download_image.exists()) {
-                                    String path = "photo/" + user.getUid() + "/" + eachPhoto.getPhoto_id();
+                                    String path = "photo/" + eachPhoto.getUser_uid() + "/" + eachPhoto.getPhoto_id();
                                     StorageReference displayPicRef = mStorageRef.child(path);
                                     displayPicRef.getFile(download_image)
                                             .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                                 @Override
                                                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                                     //Successfully download the image
-                                                    photoDownloadedList.add(eachPhoto);
-                                                    //sort list
-                                                    Collections.sort(photoDownloadedList);
-                                                    mAdapter.notifyDataSetChanged();
+
+                                                    //Now need to check if the image user icon downloaded:
+                                                    File folder =  new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + eachPhoto.getUser_uid());
+                                                    if (!folder.exists()){
+                                                        folder.mkdirs();
+                                                    }
+                                                    final File icon_img = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + eachPhoto.getUser_uid() + "/", "displayPic.jpg");
+                                                    if (!icon_img.exists()) {
+                                                        String path = "user_icon/" + eachPhoto.getUser_uid() + "/" + "displayPic.jpg";
+                                                        StorageReference displayPicRef = mStorageRef.child(path);
+                                                        displayPicRef.getFile(icon_img)
+                                                                .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                                                    @Override
+                                                                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                                                        //Successfully downloaded user icon and the image
+
+                                                                        photoDownloadedList.add(eachPhoto);
+                                                                        //sort list
+                                                                        Collections.sort(photoDownloadedList);
+                                                                        mAdapter.notifyDataSetChanged();
+
+
+                                                                    }
+                                                                });
+                                                    }
+                                                    else {
+                                                        //downloaded user image but user icon exist
+                                                        photoDownloadedList.add(eachPhoto);
+                                                        //sort list
+                                                        Collections.sort(photoDownloadedList);
+                                                        mAdapter.notifyDataSetChanged();
+                                                    }
                                                 }
                                             });
                                 } else {
-                                    //Image already exist
-                                    photoDownloadedList.add(eachPhoto);
-                                    //sort list
-                                    Collections.sort(photoDownloadedList);
-                                    mAdapter.notifyDataSetChanged();
+                                    //Image already exist, but not sure if user icon exist
+                                    //Now need to check if the image user icon downloaded:
+                                    final File icon_img = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + eachPhoto.getUser_uid() + "/", "displayPic.jpg");
+                                    if (!icon_img.exists()) {
+                                        String path = "user_icon/" + eachPhoto.getUser_uid() + "/" + "displayPic.jpg";
+                                        StorageReference displayPicRef = mStorageRef.child(path);
+                                        displayPicRef.getFile(icon_img)
+                                                .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                                        //Successfully downloaded user icon and the image
+
+                                                        photoDownloadedList.add(eachPhoto);
+                                                        //sort list
+                                                        Collections.sort(photoDownloadedList);
+                                                        mAdapter.notifyDataSetChanged();
+
+
+                                                    }
+                                                });
+                                    }
+                                    else {
+                                        //downloaded user image but user icon exist
+                                        photoDownloadedList.add(eachPhoto);
+                                        //sort list
+                                        Collections.sort(photoDownloadedList);
+                                        mAdapter.notifyDataSetChanged();
+                                    }
                                 }
                             }
                         } else {

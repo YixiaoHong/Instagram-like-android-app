@@ -25,15 +25,22 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal">
             <ImageView
-                android:id="@+id/owner_icon"
+                android:id="@+id/large_image_owner_icon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:scaleType="centerCrop"
                 />
             <TextView
-                android:id="@+id/owner_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="image_owner"/>
+            android:id="@+id/large_image_owner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="image_owner"
+                android:layout_marginTop="5dp"
+                android:textStyle="bold"/>
 
         </LinearLayout>
 
