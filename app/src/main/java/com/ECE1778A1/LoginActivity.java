@@ -73,6 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                     myFirebaseAuth.signInWithEmailAndPassword(account, pwd).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
+                            progressBar.setVisibility(View.INVISIBLE);
                             if (task.isSuccessful()){
                                 Intent Index_int = new Intent(LoginActivity.this,IndexActivity.class);
                                 startActivity(Index_int);
@@ -90,7 +91,6 @@ public class LoginActivity extends AppCompatActivity {
                 } else{
                     Toast.makeText(LoginActivity.this,"Please fill userInputEmail and userInputPassword",Toast.LENGTH_SHORT).show();
                 }
-                progressBar.setVisibility(View.INVISIBLE);
             }
         });
 
