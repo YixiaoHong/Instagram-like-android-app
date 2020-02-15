@@ -19,11 +19,5 @@ public class largeImage extends AppCompatActivity {
         ImageView largeImageView = findViewById(R.id.large_image);
         final File img = new File(fileWholePath);
         largeImageView.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
-        largeImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
     }
 }
