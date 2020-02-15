@@ -3,11 +3,9 @@ package com.ECE1778A1;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,13 +16,13 @@ import com.ECE1778A1.model.PhotoInfo;
 import java.io.File;
 import java.util.List;
 
-public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
+public class PicAdapterPlazza extends RecyclerView.Adapter<PicAdapterPlazza.MyViewHolder> {
     private List<PhotoInfo> mPhotos;
     private String FilePath;
     private Activity curActivity;
 
     // Provide a constructor
-    public PicAdapter(Activity Activity,String Path, List<PhotoInfo> Photos) {
+    public PicAdapterPlazza(Activity Activity, String Path, List<PhotoInfo> Photos) {
         this.mPhotos = Photos;
         this.FilePath = Path;
         this.curActivity = Activity;
@@ -38,9 +36,9 @@ public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
 
     // Create views
     @Override
-    public PicAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public PicAdapterPlazza.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.plaza_card_view, parent, false);
         MyViewHolder mVH = new MyViewHolder(v);
         return mVH;
     }
@@ -51,6 +49,8 @@ public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
         //holder.textView. todo: replace image with url
         final File img = new File(FilePath + mPhotos.get(position).getPhoto_id());
         holder.imgView.setImageBitmap(BitmapFactory.decodeFile(img.getAbsolutePath()));
+        holder.img_owner.setText("Posted by: "+mPhotos.get(position).getUser_name());
+        holder.img_caption.setText(mPhotos.get(position).getCaption());
 
 
         holder.imgView.setOnClickListener(new View.OnClickListener() {
@@ -68,10 +68,14 @@ public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
     // Provide a reference to the views for each entry
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public ImageView imgView;
+        public TextView img_owner;
+        public TextView img_caption;
 
         public MyViewHolder(View v) {
             super(v);
-            imgView = itemView.findViewById(R.id.img_id);
+            imgView = itemView.findViewById(R.id.plaza_img_id);
+            img_owner = itemView.findViewById(R.id.plaza_img_owner);
+            img_caption = itemView.findViewById(R.id.plaza_img_caption);
         }
     }
 

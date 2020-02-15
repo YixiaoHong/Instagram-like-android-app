@@ -16,16 +16,17 @@ import java.io.Serializable;
 
 public class PhotoInfo implements Serializable,Comparable{
 
-    private String user_uid, photo_id, time_stemp, caption;
+    private String user_uid, photo_id, time_stemp, caption, user_name;
 
     public PhotoInfo() {
     }
 
-    public PhotoInfo(String user_uid, String photo_id, String time_stemp, String caption){
+    public PhotoInfo(String user_uid, String photo_id, String time_stemp, String caption, String user_name){
         this.user_uid = user_uid;
         this.photo_id = photo_id;
         this.time_stemp = time_stemp;
         this.caption = caption;
+        this.user_name = user_name;
     }
 
     public String getUser_uid() {
@@ -58,6 +59,14 @@ public class PhotoInfo implements Serializable,Comparable{
 
     public void setCaption(String caption) {
         this.caption = caption;
+    }
+
+    public String getUser_name() {
+        return user_name;
+    }
+
+    public void setUser_name(String user_name) {
+        this.user_name = user_name;
     }
 
     @Override

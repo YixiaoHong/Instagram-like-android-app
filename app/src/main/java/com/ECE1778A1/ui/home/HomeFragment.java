@@ -112,6 +112,7 @@ public class HomeFragment extends Fragment {
         mRcyView = root.findViewById(R.id.recycler_view);
         user = FirebaseAuth.getInstance().getCurrentUser();
         Path = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/" + user.getUid() + "/";
+
         pofileimg = root.findViewById(R.id.user_icon);
 
         //camera btn
@@ -132,6 +133,7 @@ public class HomeFragment extends Fragment {
                 userEmail.setText("Email: "+userInfo.getUserEmail());
                 userName.setText(userInfo.getUserName());
                 userBio.setText("Bio: "+ userInfo.getUserBio());
+                currentUserName = userInfo.getUserName();
             }
         });
 
@@ -219,10 +221,12 @@ public class HomeFragment extends Fragment {
                             }
                             //Collected all info need to download all images
                             for ( final PhotoInfo eachPhoto: photoInfoList) {
+
+                                //check all folders created
                                 File folder =  new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid());
                                 if (!folder.exists()){
                                     folder.mkdirs();
-                            }
+                                }
                                 File download_image = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid() + "/", eachPhoto.getPhoto_id());
                                 if (!download_image.exists()) {
                                     String path = "photo/" + user.getUid() + "/" + eachPhoto.getPhoto_id();
@@ -276,7 +280,7 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getActivity(),"Photo uploading",Toast.LENGTH_SHORT).show();
                     //input into data base
                     String str_caption = photo_caption.getText().toString();
-                    PhotoInfo photoObj = new PhotoInfo(FirebaseAuth.getInstance().getCurrentUser().getUid(),currentTakenImagename+".jpg",currentTakenImagename,str_caption);
+                    PhotoInfo photoObj = new PhotoInfo(FirebaseAuth.getInstance().getCurrentUser().getUid(),currentTakenImagename+".jpg",currentTakenImagename,str_caption,currentUserName);
                     db = FirebaseFirestore.getInstance();
                     db.collection("photos/").add(photoObj);
                     //input into storage
