@@ -190,6 +190,7 @@ public class HomeFragment extends Fragment {
         return root;
     }
 
+
     void refreshPhotoList(){
         //clean the dict
         //Init Photo List views

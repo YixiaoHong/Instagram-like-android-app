@@ -5,11 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,6 +22,7 @@ import com.ECE1778A1.model.CommentInfo;
 import com.ECE1778A1.model.PhotoInfo;
 import com.ECE1778A1.model.UserInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
@@ -115,8 +118,11 @@ public class largeImage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //User wants to delete this photo
+                delete_photo_db(current_image_id);
             }
         });
+
+
 
         //comment
         btn_comment = findViewById(R.id.btn_Comment);
@@ -141,17 +147,95 @@ public class largeImage extends AppCompatActivity {
                         public void onSuccess(DocumentReference documentReference) {
                             comment_edit.setText(null);
                             Toast.makeText(largeImage.this,"Comment Posted",Toast.LENGTH_SHORT).show();
+                            hideKeyboard(largeImage.this);
                             refresh_comments();
                         }
                     });
                 }
                 else{
                     Toast.makeText(largeImage.this,"Please enter your comments!",Toast.LENGTH_SHORT).show();
+                    hideKeyboard(largeImage.this);
                     refresh_comments();
                 }
             }
         });
     }
+
+    private void delete_photo_db(final String photo_id){
+        FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+        final CollectionReference itemsRef = rootRef.collection("photos");
+        Query query = itemsRef.whereEqualTo("photo_id", photo_id);
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot document : task.getResult()) {
+                        itemsRef.document(document.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                delete_photo_storage(photo_id);
+                            }
+                        });
+                    }
+                } else {
+                    Log.d("ERROR", "Error getting documents: ", task.getException());
+                }
+            }
+        });
+    }
+
+    private void delete_comments_db(final String photo_id){
+        FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+        final CollectionReference itemsRef = rootRef.collection("comments");
+        Query query = itemsRef.whereEqualTo("photo_id", photo_id);
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot document : task.getResult()) {
+                        itemsRef.document(document.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                            }
+                        });
+                    }
+                    Toast.makeText(largeImage.this,"Photo Deleted",Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Log.d("ERROR", "Error getting documents: ", task.getException());
+                }
+            }
+        });
+    }
+
+    private void delete_photo_storage(final String photo_id){
+        // Create a reference to the file to delete
+        StorageReference desertRef = mStorageRef.child("photo/" + user.getUid()+"/" + current_image_id);
+
+        // Delete the file
+        desertRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // File deleted successfully
+                delete_comments_db(photo_id);
+            }
+        });
+    }
+
+
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
 
     private void refresh_comments(){
         //clean the dict
