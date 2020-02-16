@@ -5,5 +5,5 @@ Individual project from course "Creative Mobile Applications". The goal of this 
 - Nexus 5X API 27 2
 
 <img src="img/login.png" width="300">
-<img src="img/signup.png" width="300">
 <img src="img/main.png" width="300">
+<img src="img/share.png" width="300">
