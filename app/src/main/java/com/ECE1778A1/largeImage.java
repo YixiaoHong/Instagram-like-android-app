@@ -183,6 +183,12 @@ public class largeImage extends AppCompatActivity {
                                 Log.d("OUTPUT!!", document.getId() + " => " + fi.getCommenter_id());
                             }
                             //Collected all info need to download all images
+
+                            //Determine if there is any comments
+                            if (commentInfoList.size()>0){
+                                findViewById(R.id.no_comments).setVisibility(View.INVISIBLE);
+                            }
+
                             for ( final CommentInfo eachComment: commentInfoList) {
                                 //loop each comments
 
