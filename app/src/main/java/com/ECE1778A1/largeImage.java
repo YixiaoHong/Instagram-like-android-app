@@ -2,12 +2,14 @@ package com.ECE1778A1;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ECE1778A1.model.CommentInfo;
+import com.ECE1778A1.model.PhotoInfo;
 import com.ECE1778A1.model.UserInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -22,12 +25,22 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public class largeImage extends AppCompatActivity {
     private TextView image_caption, img_owner;
@@ -36,6 +49,15 @@ public class largeImage extends AppCompatActivity {
     private Button btn_comment;
     private FirebaseFirestore db;
     private String commenter_name;
+
+    //comment related
+    private List<CommentInfo> commentInfoList;
+    private List<CommentInfo> commentDownloadedList;
+    private CommentAdapter mAdapter;
+    private String Path;
+    private RecyclerView mRcyView;
+    private String current_image_id;
+    private StorageReference mStorageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +81,11 @@ public class largeImage extends AppCompatActivity {
         String fileWholePath = (String)getIntent().getSerializableExtra("uriPath");
         String fileWholePath_ic = (String)getIntent().getSerializableExtra("ic_uriPath");
 
+        //comment needed
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+        Path = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/";
+        mRcyView = findViewById(R.id.comment_recycler_view);
+
 
         ImageView largeImageView = findViewById(R.id.large_image);
         final File img = new File(fileWholePath);
@@ -75,13 +102,14 @@ public class largeImage extends AppCompatActivity {
 
         final String image_user_uid = (String)getIntent().getSerializableExtra("str_img_owner_uid");
         final String image_id = (String)getIntent().getSerializableExtra("str_img_id");
-
-
+        current_image_id = (String)getIntent().getSerializableExtra("str_img_id");
 
         ImageView delete_icon = findViewById(R.id.large_image_delete);
         if (!user.getUid().equals(image_user_uid)){
             delete_icon.setVisibility(View.INVISIBLE);
         }
+
+        refresh_comments();
 
         delete_icon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,6 +154,77 @@ public class largeImage extends AppCompatActivity {
     }
 
     private void refresh_comments(){
+        //clean the dict
+        //Init comment List views
+        commentInfoList = new ArrayList<>();
+        commentDownloadedList = new ArrayList<>();
+        //init adapter
+        mAdapter = new CommentAdapter(this,Path, commentDownloadedList);
+        //init recycler view
+        mRcyView.setAdapter(mAdapter);
+        GridLayoutManager mGLM = new GridLayoutManager(this,1);
+        mRcyView.setLayoutManager(mGLM);
 
+        //Get all the comment data from database
+        // Create a reference to the comment collection
+        CollectionReference commentRef = db.collection("comments");
+        // Create a query against the collection.
+        Query query = commentRef.whereEqualTo("photo_id", user.getUid());
+        db.collection("comments").whereEqualTo("photo_id", current_image_id)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            //Get all comment list
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                CommentInfo fi = document.toObject(CommentInfo.class);
+                                commentInfoList.add(fi);
+                                Log.d("OUTPUT!!", document.getId() + " => " + fi.getCommenter_id());
+                            }
+                            //Collected all info need to download all images
+                            for ( final CommentInfo eachComment: commentInfoList) {
+                                //loop each comments
+
+                                //Now need to check if the image user icon downloaded:
+                                File folder =  new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + eachComment.getCommenter_id());
+                                if (!folder.exists()){
+                                    folder.mkdirs();
+                                }
+                                final File icon_img = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + eachComment.getCommenter_id() + "/", "displayPic.jpg");
+                                if (!icon_img.exists()) {
+                                    String path = "user_icon/" + eachComment.getCommenter_id() + "/" + "displayPic.jpg";
+                                    StorageReference displayPicRef = mStorageRef.child(path);
+                                    displayPicRef.getFile(icon_img)
+                                            .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                                @Override
+                                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                                    //Successfully downloaded user icon
+
+                                                    commentDownloadedList.add(eachComment);
+                                                    //sort list
+                                                    Collections.sort(commentDownloadedList);
+                                                    mAdapter.notifyDataSetChanged();
+
+
+                                                }
+                                            });
+                                }
+                                else {
+                                    //user icon exist
+                                    commentDownloadedList.add(eachComment);
+                                    //sort list
+                                    Collections.sort(commentDownloadedList);
+                                    mAdapter.notifyDataSetChanged();
+                                }
+
+
+                            }//for loop
+                        } //Get all comment list
+                        else {
+                            Log.d("ERROR", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
     }
 }
