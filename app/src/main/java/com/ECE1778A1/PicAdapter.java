@@ -57,6 +57,8 @@ public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
 
         final String str_img_owner = mPhotos.get(position).getUser_name();
         final String str_img_caption = mPhotos.get(position).getCaption();
+        final String str_img_owner_uid = mPhotos.get(position).getUser_uid();
+        final String str_img_id = mPhotos.get(position).getPhoto_id();
 
 
         holder.imgView.setOnClickListener(new View.OnClickListener() {
@@ -65,8 +67,10 @@ public class PicAdapter extends RecyclerView.Adapter<PicAdapter.MyViewHolder> {
                 Intent largeImage_int = new Intent(curActivity, largeImage.class);
                 largeImage_int.putExtra("uriPath",img.getAbsolutePath());
                 largeImage_int.putExtra("ic_uriPath",img_ic.getAbsolutePath());
-                largeImage_int.putExtra("str_img_owner",str_img_owner);
+                largeImage_int.putExtra("str_img_owner","Posted by: "+str_img_owner);
                 largeImage_int.putExtra("str_img_caption",str_img_caption);
+                largeImage_int.putExtra("str_img_owner_uid",str_img_owner_uid);
+                largeImage_int.putExtra("str_img_id",str_img_id);
                 curActivity.startActivity(largeImage_int);
 
             }

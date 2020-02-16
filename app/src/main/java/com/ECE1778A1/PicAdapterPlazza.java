@@ -59,6 +59,8 @@ public class PicAdapterPlazza extends RecyclerView.Adapter<PicAdapterPlazza.MyVi
 
         final String str_img_owner = mPhotos.get(position).getUser_name();
         final String str_img_caption = mPhotos.get(position).getCaption();
+        final String str_img_owner_uid = mPhotos.get(position).getUser_uid();
+        final String str_img_id = mPhotos.get(position).getPhoto_id();
 
 
         holder.imgView.setOnClickListener(new View.OnClickListener() {
@@ -69,6 +71,8 @@ public class PicAdapterPlazza extends RecyclerView.Adapter<PicAdapterPlazza.MyVi
                 largeImage_int.putExtra("uriPath",img.getAbsolutePath());
                 largeImage_int.putExtra("str_img_owner",str_img_owner);
                 largeImage_int.putExtra("str_img_caption",str_img_caption);
+                largeImage_int.putExtra("str_img_owner_uid",str_img_owner_uid);
+                largeImage_int.putExtra("str_img_id",str_img_id);
                 curActivity.startActivity(largeImage_int);
 
             }
