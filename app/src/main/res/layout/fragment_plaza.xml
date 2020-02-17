@@ -39,6 +39,7 @@
             app:srcCompat="@android:drawable/ic_menu_camera"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
+            android:visibility="invisible"
             />
     </RelativeLayout>
 
