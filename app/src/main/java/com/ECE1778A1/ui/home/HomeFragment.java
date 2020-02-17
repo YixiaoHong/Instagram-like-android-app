@@ -51,6 +51,7 @@ import com.ECE1778A1.SignupActivity;
 import com.ECE1778A1.model.PhotoInfo;
 import com.ECE1778A1.model.UserInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -64,6 +65,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.User;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -122,6 +127,7 @@ public class HomeFragment extends Fragment {
 
         //storage
         mStorageRef = FirebaseStorage.getInstance().getReference();
+
 
 
         // load data base
@@ -321,6 +327,8 @@ public class HomeFragment extends Fragment {
             ImageView imageView = builder.findViewById(R.id.photo_display_confirm);
             Button btn_confirm = builder.findViewById(R.id.photo_confirm_upload);
             Button btn_cancel = builder.findViewById(R.id.photo_confirm_cancel);
+            Button btn_tags = builder.findViewById(R.id.photo_add_tag);
+
             final EditText photo_caption = builder.findViewById(R.id.photo_display_caption);
             imageView.setImageURI(takenImageUri);
 
@@ -361,6 +369,46 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     builder.dismiss();
+                }
+            });
+
+            btn_tags.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //add tags
+                    //imagetag
+                    FirebaseVisionImageLabeler labeler = FirebaseVision.getInstance().getCloudImageLabeler();
+                    File photoFile = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + user.getUid() + "/" +currentTakenImagename+".jpg");
+                    FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(BitmapFactory.decodeFile(photoFile.getAbsolutePath()));
+                    labeler.processImage(image)
+                            .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>() {
+                                @Override
+                                public void onSuccess(List<FirebaseVisionImageLabel> labels) {
+                                    // Task completed successfully
+                                    // ...
+                                    String output = "";
+                                    for (FirebaseVisionImageLabel label: labels) {
+                                        String text = label.getText();
+                                        String entityId = label.getEntityId();
+                                        float confidence = label.getConfidence();
+                                        if (confidence>0.7){
+                                            output = output + "#" + text;
+                                        }
+
+                                    }
+
+                                    photo_caption.setText(photo_caption.getText()+output);
+
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    // Task failed with an exception
+                                    // ...
+                                }
+                            });
+
                 }
             });
             builder.show();

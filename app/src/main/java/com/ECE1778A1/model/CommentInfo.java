@@ -82,6 +82,6 @@ public class CommentInfo implements Serializable,Comparable{
     public int compareTo(Object o) {
         Integer me = Integer.valueOf(this.comment_time);
         Integer other = Integer.valueOf(((CommentInfo)o).getComment_time());
-        return other.compareTo(me);
+        return me.compareTo(other);
     }
 }
