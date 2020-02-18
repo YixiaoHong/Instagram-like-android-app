@@ -6,6 +6,9 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
@@ -117,8 +120,22 @@ public class largeImage extends AppCompatActivity {
         delete_icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //User wants to delete this photo
-                delete_photo_db(current_image_id);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(largeImage.this);
+                builder.setMessage("Are you sure you want to delete this post?");
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //User wants to delete this photo
+                        delete_photo_db(current_image_id);
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.show();
+
             }
         });
 
@@ -201,7 +218,9 @@ public class largeImage extends AppCompatActivity {
                         });
                     }
                     Toast.makeText(largeImage.this,"Photo Deleted",Toast.LENGTH_SHORT).show();
-                    finish();
+                    Intent indexActivity_int = new Intent(largeImage.this, IndexActivity.class);
+                    startActivity(indexActivity_int);
+//                    finish();
                 } else {
                     Log.d("ERROR", "Error getting documents: ", task.getException());
                 }

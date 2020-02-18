@@ -397,7 +397,7 @@ public class HomeFragment extends Fragment {
 
                                     }
 
-                                    photo_caption.setText(photo_caption.getText()+output);
+                                    photo_caption.setText(photo_caption.getText()+ "\n" + output);
 
                                 }
                             })
